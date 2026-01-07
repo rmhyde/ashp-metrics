@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -93,11 +94,21 @@ var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err
 }
 
 func ConvertToEmoncmsPayload(payload EspAlthermaPayload) EmoncmsPayload {
+	DHWMode := 0.0
+	if strings.Contains(payload.IUOperationMode, "DHW") {
+		DHWMode = 1
+	}
+	HeatingMode := 0.0
+	if strings.Contains(payload.OperationMode, "Heating") {
+		HeatingMode = 1
+	}
+
 	return EmoncmsPayload{
 		OutdoorAirTemp:            payload.OutdoorAirTemp,
 		INVPrimaryCurrent:         payload.INVPrimaryCurrent,
 		INVSecondaryCurrent:       payload.INVSecondaryCurrent,
-		IUOperationMode:           payload.IUOperationMode,
+		HeatingMode:               HeatingMode,
+		DHWMode:                   DHWMode,
 		DHWSetpoint:               payload.DHWSetpoint,
 		DHWTankTemp:               payload.DHWTankTemp,
 		LWSetpointMain:            payload.LWSetpointMain,
@@ -115,7 +126,8 @@ type EmoncmsPayload struct {
 	OutdoorAirTemp            float64 `json:"OutdoorTemp"`
 	INVPrimaryCurrent         float64 `json:"InvPrimaryCurrent"`
 	INVSecondaryCurrent       float64 `json:"InvSecondaryCurrent"`
-	IUOperationMode           string  `json:"IUOperationMode"`
+	HeatingMode               float64 `json:"HeatingMode"`
+	DHWMode                   float64 `json:"DHWMode"`
 	DHWSetpoint               float64 `json:"DHWSetpoint"`
 	DHWTankTemp               float64 `json:"DHWTemp"`
 	LWSetpointMain            float64 `json:"LWSetpointMain"`
