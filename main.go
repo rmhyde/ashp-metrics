@@ -29,7 +29,7 @@ func main() {
 	client := mqtt.NewClient(opts)
 	if token := client.Connect(); token.Wait() && token.Error() != nil {
 		fmt.Println("MQTT connection error:", token.Error())
-		return
+		os.Exit(1)
 	}
 	subscribe(client)
 
@@ -58,8 +58,8 @@ func subscribe(client mqtt.Client) {
 	token.Wait()
 	// Check for errors during subscribe (More on error reporting https://pkg.go.dev/github.com/eclipse/paho.mqtt.golang#readme-error-handling)
 	if token.Error() != nil {
-		fmt.Printf("Failed to subscribe to topic")
-		panic(token.Error())
+		fmt.Printf("Failed to subscribe to topic: %v\n", token.Error())
+		os.Exit(1)
 	}
 	fmt.Printf("Subscribed to topic: %s\n", topic)
 }
@@ -91,6 +91,7 @@ var connectHandler mqtt.OnConnectHandler = func(client mqtt.Client) {
 
 var connectLostHandler mqtt.ConnectionLostHandler = func(client mqtt.Client, err error) {
 	fmt.Printf("Connection lost: %v", err)
+	os.Exit(1)
 }
 
 func ConvertToEmoncmsPayload(payload EspAlthermaPayload) EmoncmsPayload {
