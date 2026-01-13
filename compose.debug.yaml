@@ -1,0 +1,6 @@
+services:
+  ashpmetrics:
+    image: ashpmetrics
+    build:
+      context: .
+      dockerfile: ./Dockerfile
